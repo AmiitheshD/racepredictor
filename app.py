@@ -8,6 +8,9 @@ from pathlib import Path
 from flask import Flask, render_template, request, send_from_directory, url_for
 from werkzeug.utils import secure_filename
 
+# Render/Linux containers can have non-writable home config paths.
+os.environ.setdefault("MPLCONFIGDIR", "/tmp/matplotlib")
+
 from race_predictor import run_pipeline
 
 BASE_DIR = Path(__file__).resolve().parent
