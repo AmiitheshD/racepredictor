@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 import shutil
+import traceback
 import uuid
 from pathlib import Path
 
@@ -32,6 +33,11 @@ def allowed_file(filename: str) -> bool:
 @app.get("/")
 def index():
     return render_template("index.html")
+
+
+@app.get("/health")
+def health():
+    return {"status": "ok"}, 200
 
 
 @app.get("/predict")
@@ -111,6 +117,7 @@ def run_file(run_id: str, filename: str):
 
 @app.errorhandler(Exception)
 def handle_unexpected_error(exc: Exception):
+    app.logger.error("Unhandled server error: %s\n%s", exc, traceback.format_exc())
     return render_template("index.html", error=f"Server error: {exc}"), 500
 
 

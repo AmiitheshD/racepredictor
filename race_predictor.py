@@ -54,6 +54,12 @@ def parse_args() -> argparse.Namespace:
         default=42,
         help="Random seed for reproducibility (default: 42).",
     )
+    parser.add_argument(
+        "--cv-folds",
+        type=int,
+        default=3,
+        help="Cross-validation folds (default: 3, lower is faster).",
+    )
     return parser.parse_args()
 
 
@@ -195,6 +201,7 @@ def evaluate_models(
     y: np.ndarray,
     distance_col: str,
     random_state: int,
+    cv_folds: int = 3,
 ) -> tuple[pd.DataFrame, dict[str, np.ndarray], dict[str, Pipeline]]:
     preprocessor = build_preprocessor(X)
 
@@ -214,7 +221,7 @@ def evaluate_models(
                 (
                     "model",
                     GradientBoostingRegressor(
-                        n_estimators=300,
+                        n_estimators=150,
                         learning_rate=0.05,
                         max_depth=3,
                         random_state=random_state,
@@ -228,7 +235,7 @@ def evaluate_models(
                 (
                     "model",
                     RandomForestRegressor(
-                        n_estimators=600,
+                        n_estimators=200,
                         min_samples_leaf=2,
                         random_state=random_state,
                         n_jobs=1,
@@ -259,7 +266,8 @@ def evaluate_models(
             )
             models["PowerLaw(DistanceOnly)"] = power_pipe
 
-    cv = KFold(n_splits=5, shuffle=True, random_state=random_state)
+    fold_count = max(2, min(cv_folds, len(X)))
+    cv = KFold(n_splits=fold_count, shuffle=True, random_state=random_state)
 
     rows: list[dict] = []
     preds: dict[str, np.ndarray] = {}
@@ -384,6 +392,7 @@ def run_pipeline(
     predict_distance: float = 26.2,
     output_dir: Path = Path("outputs"),
     random_state: int = 42,
+    cv_folds: int = 3,
 ) -> dict:
     csv_path = Path(csv_path).expanduser().resolve()
     output_dir = Path(output_dir).expanduser().resolve()
@@ -397,6 +406,7 @@ def run_pipeline(
         y=y,
         distance_col=distance_col,
         random_state=random_state,
+        cv_folds=cv_folds,
     )
 
     best_model_name = results.iloc[0]["Model"]
@@ -454,6 +464,7 @@ def main() -> None:
         predict_distance=args.predict_distance,
         output_dir=Path(args.output_dir),
         random_state=args.random_state,
+        cv_folds=args.cv_folds,
     )
     results = run["results"]
     best_model_name = run["best_model_name"]
