@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Race Predictor Lab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+  <div class="background-shape shape-a"></div>
+  <div class="background-shape shape-b"></div>
+
+  <main class="container">
+    <section class="hero card">
+      <p class="eyebrow">Performance Modeling</p>
+      <h1>Race Predictor Lab</h1>
+      <p class="subtitle">Upload your running CSV and generate a model-ranked race prediction report with visual diagnostics.</p>
+    </section>
+
+    <section class="card form-card">
+      <h2>Run Prediction</h2>
+      <form action="/predict" method="post" enctype="multipart/form-data" class="predict-form">
+        <label>
+          CSV file
+          <input type="file" name="csv_file" accept=".csv" required>
+        </label>
+
+        <div class="grid-3">
+          <label>
+            Target column
+            <input type="text" name="target" value="Time" required>
+          </label>
+
+          <label>
+            Distance column
+            <input type="text" name="distance_col" value="Distance" required>
+          </label>
+
+          <label>
+            Predict distance
+            <input type="number" step="0.01" name="predict_distance" value="26.2" required>
+          </label>
+        </div>
+
+        <button type="submit">Train Models + Predict</button>
+      </form>
+
+      {% if error %}
+      <div class="alert error">{{ error }}</div>
+      {% endif %}
+    </section>
+
+    {% if success %}
+    <section class="card summary-card">
+      <h2>Best Model Summary</h2>
+      <div class="summary-grid">
+        <div class="metric-block">
+          <span>Model</span>
+          <strong>{{ best_model }}</strong>
+        </div>
+        <div class="metric-block">
+          <span>Predicted Time ({{ predict_distance }})</span>
+          <strong>{{ race_time_hms }}</strong>
+          <small>{{ "%.2f"|format(race_time_seconds) }} sec</small>
+        </div>
+        <div class="metric-block">
+          <span>RMSE</span>
+          <strong>{{ "%.2f"|format(best_metrics.RMSE) }}s</strong>
+        </div>
+        <div class="metric-block">
+          <span>MAE</span>
+          <strong>{{ "%.2f"|format(best_metrics.MAE) }}s</strong>
+        </div>
+        <div class="metric-block">
+          <span>R²</span>
+          <strong>{{ "%.4f"|format(best_metrics.R2) }}</strong>
+        </div>
+        <div class="metric-block">
+          <span>MAPE</span>
+          <strong>{{ "%.2f"|format(best_metrics.MAPE_pct) }}%</strong>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Model Ranking</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Model</th>
+              <th>RMSE</th>
+              <th>MAE</th>
+              <th>R²</th>
+              <th>MAPE %</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in metrics_table %}
+            <tr>
+              <td>{{ row.Model }}</td>
+              <td>{{ row.RMSE }}</td>
+              <td>{{ row.MAE }}</td>
+              <td>{{ row.R2 }}</td>
+              <td>{{ row.MAPE_pct }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Charts</h2>
+      <div class="chart-grid">
+        <figure>
+          <img src="{{ chart_urls.rmse }}" alt="RMSE model comparison chart">
+          <figcaption>Model RMSE Comparison</figcaption>
+        </figure>
+        <figure>
+          <img src="{{ chart_urls.actual_vs_pred }}" alt="Actual vs predicted scatter plot">
+          <figcaption>Actual vs Predicted</figcaption>
+        </figure>
+        <figure>
+          <img src="{{ chart_urls.residual }}" alt="Residual histogram">
+          <figcaption>Residual Distribution</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="card downloads">
+      <h2>Downloads</h2>
+      <a href="{{ download_urls.metrics_csv }}">model_metrics.csv</a>
+      <a href="{{ download_urls.predictions_csv }}">best_model_predictions.csv</a>
+    </section>
+    {% endif %}
+  </main>
+</body>
+</html>
