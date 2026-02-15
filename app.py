@@ -5,7 +5,7 @@ import shutil
 import uuid
 from pathlib import Path
 
-from flask import Flask, render_template, request, send_from_directory, url_for
+from flask import Flask, redirect, render_template, request, send_from_directory, url_for
 from werkzeug.utils import secure_filename
 
 # Render/Linux containers can have non-writable home config paths.
@@ -32,6 +32,11 @@ def allowed_file(filename: str) -> bool:
 @app.get("/")
 def index():
     return render_template("index.html")
+
+
+@app.get("/predict")
+def predict_get():
+    return redirect(url_for("index"))
 
 
 @app.post("/predict")
@@ -102,6 +107,11 @@ def predict():
 def run_file(run_id: str, filename: str):
     run_dir = OUTPUT_ROOT / run_id
     return send_from_directory(run_dir, filename, as_attachment=False)
+
+
+@app.errorhandler(Exception)
+def handle_unexpected_error(exc: Exception):
+    return render_template("index.html", error=f"Server error: {exc}"), 500
 
 
 if __name__ == "__main__":
