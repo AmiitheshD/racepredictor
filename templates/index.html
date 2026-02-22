@@ -15,13 +15,13 @@
 
   <main class="container">
     <section class="hero card">
-      <p class="eyebrow">Performance Modeling</p>
-      <h1>Race Predictor Lab</h1>
-      <p class="subtitle">Upload your running CSV and generate a model-ranked race prediction report with visual diagnostics.</p>
+      <p class="eyebrow">Marathon Predictor</p>
+      <h1>Peter Riegel Marathon Forecast</h1>
+      <p class="subtitle">Upload your running CSV and get a marathon prediction using the same marathon-focused broad Riegel formula.</p>
     </section>
 
     <section class="card form-card">
-      <h2>Run Prediction</h2>
+      <h2>Predict Marathon Time</h2>
       <form action="/predict" method="post" enctype="multipart/form-data" class="predict-form">
         <label>
           CSV file
@@ -30,8 +30,8 @@
 
         <div class="grid-3">
           <label>
-            Target column
-            <input type="text" name="target" value="Time" required>
+            Time column
+            <input type="text" name="time_col" value="Time" required>
           </label>
 
           <label>
@@ -40,12 +40,24 @@
           </label>
 
           <label>
-            Predict distance
-            <input type="number" step="0.01" name="predict_distance" value="26.2" required>
+            Date column
+            <input type="text" name="date_col" value="Date" required>
           </label>
         </div>
 
-        <button type="submit">Train Models + Predict</button>
+        <div class="grid-3">
+          <label>
+            Race date (YYYY-MM-DD)
+            <input type="text" name="race_date" value="2026-03-01" required>
+          </label>
+
+          <label>
+            Marathon distance
+            <input type="number" step="0.0001" name="marathon_distance" value="26.2188" required>
+          </label>
+        </div>
+
+        <button type="submit">Predict Marathon Time</button>
       </form>
 
       {% if error %}
@@ -55,86 +67,74 @@
 
     {% if success %}
     <section class="card summary-card">
-      <h2>Best Model Summary</h2>
+      <h2>Prediction Result</h2>
       <div class="summary-grid">
         <div class="metric-block">
+          <span>Predicted Marathon Time</span>
+          <strong>{{ marathon_hms }}</strong>
+          <small>{{ "%.2f"|format(marathon_seconds) }} sec</small>
+        </div>
+        <div class="metric-block">
           <span>Model</span>
-          <strong>{{ best_model }}</strong>
+          <strong>{{ model_name }}</strong>
         </div>
         <div class="metric-block">
-          <span>Predicted Time ({{ predict_distance }})</span>
-          <strong>{{ race_time_hms }}</strong>
-          <small>{{ "%.2f"|format(race_time_seconds) }} sec</small>
+          <span>Race distance</span>
+          <strong>{{ marathon_distance }}</strong>
         </div>
         <div class="metric-block">
-          <span>RMSE</span>
-          <strong>{{ "%.2f"|format(best_metrics.RMSE) }}s</strong>
+          <span>Race date filter</span>
+          <strong>{{ race_date }}</strong>
         </div>
         <div class="metric-block">
-          <span>MAE</span>
-          <strong>{{ "%.2f"|format(best_metrics.MAE) }}s</strong>
+          <span>a</span>
+          <strong>{{ "%.6f"|format(coefficient_a) }}</strong>
         </div>
         <div class="metric-block">
-          <span>R²</span>
-          <strong>{{ "%.4f"|format(best_metrics.R2) }}</strong>
-        </div>
-        <div class="metric-block">
-          <span>MAPE</span>
-          <strong>{{ "%.2f"|format(best_metrics.MAPE_pct) }}%</strong>
+          <span>b</span>
+          <strong>{{ "%.6f"|format(exponent_b) }}</strong>
         </div>
       </div>
     </section>
 
     <section class="card">
-      <h2>Model Ranking</h2>
+      <h2>Fit Diagnostics</h2>
       <div class="table-wrap">
         <table>
-          <thead>
-            <tr>
-              <th>Model</th>
-              <th>RMSE</th>
-              <th>MAE</th>
-              <th>R²</th>
-              <th>MAPE %</th>
-            </tr>
-          </thead>
           <tbody>
-            {% for row in metrics_table %}
             <tr>
-              <td>{{ row.Model }}</td>
-              <td>{{ row.RMSE }}</td>
-              <td>{{ row.MAE }}</td>
-              <td>{{ row.R2 }}</td>
-              <td>{{ row.MAPE_pct }}</td>
+              <th>Rows total</th>
+              <td>{{ rows_total }}</td>
             </tr>
-            {% endfor %}
+            <tr>
+              <th>Rows used</th>
+              <td>{{ rows_used }}</td>
+            </tr>
+            <tr>
+              <th>RMSE (sec)</th>
+              <td>{{ "%.3f"|format(rmse_seconds) }}</td>
+            </tr>
+            <tr>
+              <th>MAE (sec)</th>
+              <td>{{ "%.3f"|format(mae_seconds) }}</td>
+            </tr>
+            <tr>
+              <th>R²</th>
+              <td>{{ "%.5f"|format(r2) }}</td>
+            </tr>
+            <tr>
+              <th>Long-run MAE (sec)</th>
+              <td>{{ "%.3f"|format(long_run_mae_seconds) }}</td>
+            </tr>
+            {% if distance_cutoff %}
+            <tr>
+              <th>Distance cutoff used</th>
+              <td>{{ "%.4f"|format(distance_cutoff) }}</td>
+            </tr>
+            {% endif %}
           </tbody>
         </table>
       </div>
-    </section>
-
-    <section class="card">
-      <h2>Charts</h2>
-      <div class="chart-grid">
-        <figure>
-          <img src="{{ chart_urls.rmse }}" alt="RMSE model comparison chart">
-          <figcaption>Model RMSE Comparison</figcaption>
-        </figure>
-        <figure>
-          <img src="{{ chart_urls.actual_vs_pred }}" alt="Actual vs predicted scatter plot">
-          <figcaption>Actual vs Predicted</figcaption>
-        </figure>
-        <figure>
-          <img src="{{ chart_urls.residual }}" alt="Residual histogram">
-          <figcaption>Residual Distribution</figcaption>
-        </figure>
-      </div>
-    </section>
-
-    <section class="card downloads">
-      <h2>Downloads</h2>
-      <a href="{{ download_urls.metrics_csv }}">model_metrics.csv</a>
-      <a href="{{ download_urls.predictions_csv }}">best_model_predictions.csv</a>
     </section>
     {% endif %}
   </main>
