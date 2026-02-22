@@ -97,45 +97,6 @@
       </div>
     </section>
 
-    <section class="card">
-      <h2>Fit Diagnostics</h2>
-      <div class="table-wrap">
-        <table>
-          <tbody>
-            <tr>
-              <th>Rows total</th>
-              <td>{{ rows_total }}</td>
-            </tr>
-            <tr>
-              <th>Rows used</th>
-              <td>{{ rows_used }}</td>
-            </tr>
-            <tr>
-              <th>RMSE (sec)</th>
-              <td>{{ "%.3f"|format(rmse_seconds) }}</td>
-            </tr>
-            <tr>
-              <th>MAE (sec)</th>
-              <td>{{ "%.3f"|format(mae_seconds) }}</td>
-            </tr>
-            <tr>
-              <th>R²</th>
-              <td>{{ "%.5f"|format(r2) }}</td>
-            </tr>
-            <tr>
-              <th>Long-run MAE (sec)</th>
-              <td>{{ "%.3f"|format(long_run_mae_seconds) }}</td>
-            </tr>
-            {% if distance_cutoff %}
-            <tr>
-              <th>Distance cutoff used</th>
-              <td>{{ "%.4f"|format(distance_cutoff) }}</td>
-            </tr>
-            {% endif %}
-          </tbody>
-        </table>
-      </div>
-    </section>
     {% endif %}
   </main>
 </body>
