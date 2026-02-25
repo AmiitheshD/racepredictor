@@ -5,7 +5,7 @@ import traceback
 import uuid
 from pathlib import Path
 
-from flask import Flask, render_template, request
+from flask import Flask, redirect, render_template, request, url_for
 from werkzeug.exceptions import HTTPException
 from werkzeug.utils import secure_filename
 
@@ -36,6 +36,11 @@ def index():
 @app.get("/health")
 def health():
     return {"status": "ok"}, 200
+
+
+@app.get("/predict")
+def predict_get():
+    return redirect(url_for("index"))
 
 
 @app.post("/predict")
@@ -102,6 +107,8 @@ def predict():
 
 @app.errorhandler(Exception)
 def handle_unexpected_error(exc: Exception):
+    if isinstance(exc, HTTPException) and exc.code == 405:
+        return render_template("index.html", error="Invalid request method for that route."), 405
     if isinstance(exc, HTTPException):
         return render_template("index.html", error=str(exc)), exc.code
     app.logger.error("Unhandled server error: %s\n%s", exc, traceback.format_exc())
