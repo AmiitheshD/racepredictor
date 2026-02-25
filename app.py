@@ -47,7 +47,7 @@ def predict():
     race_date = request.form.get("race_date", "").strip()
 
     try:
-        marathon_distance = float(request.form.get("marathon_distance", "26.2188"))
+        marathon_distance = float(request.form.get("marathon_distance", "26.2"))
     except ValueError:
         return render_template("index.html", error="Marathon distance must be a number.")
 

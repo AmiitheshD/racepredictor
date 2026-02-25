@@ -53,7 +53,7 @@
 
           <label>
             Marathon distance
-            <input type="number" step="0.0001" name="marathon_distance" value="26.2188" required>
+            <input type="number" step="0.01" name="marathon_distance" value="26.2" required>
           </label>
         </div>
 
@@ -73,26 +73,6 @@
           <span>Predicted Marathon Time</span>
           <strong>{{ marathon_hms }}</strong>
           <small>{{ "%.2f"|format(marathon_seconds) }} sec</small>
-        </div>
-        <div class="metric-block">
-          <span>Model</span>
-          <strong>{{ model_name }}</strong>
-        </div>
-        <div class="metric-block">
-          <span>Race distance</span>
-          <strong>{{ marathon_distance }}</strong>
-        </div>
-        <div class="metric-block">
-          <span>Race date filter</span>
-          <strong>{{ race_date }}</strong>
-        </div>
-        <div class="metric-block">
-          <span>a</span>
-          <strong>{{ "%.6f"|format(coefficient_a) }}</strong>
-        </div>
-        <div class="metric-block">
-          <span>b</span>
-          <strong>{{ "%.6f"|format(exponent_b) }}</strong>
         </div>
       </div>
     </section>
