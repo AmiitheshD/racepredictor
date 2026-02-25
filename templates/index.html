@@ -65,6 +65,19 @@
       {% endif %}
     </section>
 
+    <section class="card explain-card">
+      <h2>How The Statistics Work (Simple Version)</h2>
+      <p>The model uses the Riegel equation:</p>
+      <p class="equation">time = a x distance<sup>b</sup></p>
+      <ul class="explain-list">
+        <li><strong>a</strong> captures your baseline speed level.</li>
+        <li><strong>b</strong> captures how your pace changes as distance gets longer.</li>
+        <li>Both values are learned from your uploaded runs, not copied from a generic athlete.</li>
+      </ul>
+      <p class="highlight-line">Accuracy is better because each variable is calculated from your own data, instead of assuming fixed constants.</p>
+      <p class="small-note">In short: this is personalized curve fitting, not a one-size-fits-all guess.</p>
+    </section>
+
     {% if success %}
     <section class="card summary-card">
       <h2>Prediction Result</h2>

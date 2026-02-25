@@ -274,3 +274,36 @@ figcaption {
     margin: 1rem auto 2rem;
   }
 }
+
+.explain-card p {
+  margin: 0.35rem 0;
+  color: var(--muted);
+}
+
+.equation {
+  font-family: "Space Mono", monospace;
+  color: var(--neon-cyan);
+  font-size: 1.05rem;
+}
+
+.explain-list {
+  margin: 0.6rem 0 0.5rem;
+  padding-left: 1.1rem;
+  color: var(--text);
+}
+
+.explain-list li {
+  margin: 0.3rem 0;
+}
+
+.highlight-line {
+  border-left: 3px solid var(--neon-lime);
+  padding-left: 0.7rem;
+  color: #d9ff89;
+  font-weight: 600;
+}
+
+.small-note {
+  font-size: 0.9rem;
+  color: var(--muted);
+}
